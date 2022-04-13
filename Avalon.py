@@ -125,7 +125,6 @@ class Player():
             evil_roles = ['Maeve']
             num_good = 1
             num_evil = 1
-
         '''
         good_roles_in_game = random.sample(good_roles, num_good)
         evil_roles_in_game = random.sample(evil_roles, num_evil)
@@ -171,3 +170,32 @@ class Player():
         # if there is at least one evil, first evil player becomes assassin
         if len(evil_players) > 0:
             evil_players[0].is_assassin = True
+            
+        for ep in evil_players:
+            new_role = evil_roles_in_game.pop()
+            ep.set_role(new_role)
+            ep.set_team('Evil')
+            player_of_role[new_role] = ep
+        
+        for p in players:
+            p.add_info(get_role_information(p,players))
+            random.shuffle(p.info)
+            # print(p.name,p.role,p.team,p.info)
+            
+        # Informing Evil about Colgrevance
+        for ep in evil_players:
+            if ep.role is not 'Colgrevance' and player_of_role.get('Colgrevance'):
+                ep.add_info(['Colgrevance lurks in the shadows. (There is another Evil that you do not see.)'])
+            if ep.role is not 'Colgrevance' and player_of_role.get('Titania'):
+                ep.add_info(['Titania has infiltrated your ranks. (One of the people you see is not Evil.)'])
+            if ep.is_assassin:
+                ep.add_info(['You are the Assassin.'])
+        
+        # delete and recreate game directory
+        if os.path.isdir("game"):
+            shutil.rmtree("game")
+        os.mkdir("game")
+        
+        
+        
+        
