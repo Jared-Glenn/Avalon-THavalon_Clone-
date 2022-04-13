@@ -76,4 +76,98 @@ class Player():
         pass
 
     def get_player_info(player_names):
-    }
+        num_players = len(player_names)
+        if len(player_names) != num_players:
+            print('ERROR: Duplicate player names.')
+            exit(1)
+
+        # create player objects
+        players = []
+        for i in range(0, len(player_names)):
+            player = Player(player_names[i])
+            players.append(player)
+
+        # number of good and evil roles
+        if num_players < 7:
+            num_evil = 2
+        elif num_players < 9:
+            num_evil = 3
+        else:
+            num_evil = 4
+        num_good = num_players - num_evil
+
+        # establish available roles
+        good_roles = ['Merlin', 'Percival', 'Tristan', 'Iseult', 'Lancelot']
+        evil_roles = ['Mordred', 'Morgana', 'Maelagant']
+
+        # additional roles for player-count
+        # 5 only
+        if num_players > 6:
+            good_roles.append('Nimue')
+
+        # 7 plus
+        if num_players > 6:
+            good_roles.append('Arthur')
+            good_roles.append('Titania')
+
+        # 8 plus
+        if num_players > 7:
+            evil_roles.append('Agravaine')
+
+        # 10 only
+        if num_players == 10:
+            evil_roles.append('Colgrevance')
+
+        '''
+        cide for testing role interaction
+        if num players == 2:
+            good_roles = ['Merlin']
+            evil_roles = ['Maeve']
+            num_good = 1
+            num_evil = 1
+
+        '''
+        good_roles_in_game = random.sample(good_roles, num_good)
+        evil_roles_in_game = random.sample(evil_roles, num_evil)
+
+        # lone lovers are rerolled
+        # 50% chance to reroll one lone lover
+        # 50% chance to reroll another role into a lover
+        if sum(gr in ['Tristan','Iseult'] for gr in good_roles_in_game) == 1 and num_good > 1:
+            if 'Tristan' in good_roles_in_game:
+                good_roles_in_game.remove('Tristan')
+            if 'Iseult' in good_roles_in_game:
+                good_roles_in_game.remove('Iseult')
+
+            if random.choice([True, False]):
+                # replacing the lone lover
+                 available_roles = set(good_roles)-set(good_roles_in_game)-set(['Tristan','Iseult'])
+                 good_roles_in_game.append(random.sample(set(available_roles),1)[0])
+            else:
+                # upgradng to pair of lovers
+                rerolled = random.choice(good_roles_in_game)
+                good_roles_in_game.remove(rerolled)
+                good_roles_in_game.append('Tristan')
+                good_roles_in_game.append('Iseult')
+
+        # roles after validation
+        #print(good_roles_in_game)
+        #print(evil_roles_in_game)
+
+        # role assignment
+        random.shuffle(players)
+
+        good_players = players[:num_good]
+        evil_players = players[num_good:]
+
+        player_of_role = dict()
+
+        for gp in good_players:
+            new_role = good_roles_in_game.pop()
+            gp.set_role(new_role)
+            gp.set_team('Good')
+            player_of_role[new_role] = gp
+
+        # if there is at least one evil, first evil player becomes assassin
+        if len(evil_players) > 0:
+            evil_players[0].is_assassin = True
