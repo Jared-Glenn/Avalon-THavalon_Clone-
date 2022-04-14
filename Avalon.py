@@ -196,6 +196,10 @@ class Player():
             shutil.rmtree("game")
         os.mkdir("game")
         
+        bar= '----------------------------------------\n'
+        for player in players:
+            player.string= bar+'You are '+player.role+' [+player.team+']\n+
+        
         
         
         
