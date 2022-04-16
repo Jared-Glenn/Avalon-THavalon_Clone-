@@ -198,8 +198,36 @@ class Player():
         
         bar= '----------------------------------------\n'
         for player in players:
-            player.string= bar+'You are '+player.role+' [+player.team+']\n+
+            player.string= bar+'You are '+player.role+' [+player.team+']\n'+bar+get_role_description(player.role)+'/n'+bar+'\n'.join(player.info)+'\n'+bar
+            player_file = "game/{}".format(player.name)
+            with open(player_file,"w") as file:
+                file.write(player.string)
+                
+        first_player = random.sample(players,1)[0]
+        with open("game/start", "w") as file:
+            file.write("The player proposing the first mission is {}.".format(first_player.name))
+            #file.write("\n" + second_mission_starter + " is the starting player of the 2nd round.\n")
+            
+        with open("game/DoNotOpen", "w") as file:
+            file.write("Player -> Role\n\n GOOD TEAM:\n")
+            for gp in good_players:
+                file.write("{} -> {}\n".format(gp.name, gp.role))
+        file.write("\nEVIL TEAM:\n")
+        for ep in evil_players:
+                    file.write("{} -> {}\n".format(ep.name,ep.role))
+
+if __name__ == "__main__":
+    if not (6 <= len(sys.argv) <= 11):
+        print("Invalid number of players")
+        exit(1)
         
+    players = sys.argv[1:]
+    num_players = len(players)
+    players = set(players) # use as a set to avoid duplicate players
+    players = list(players) # convert to list
+    random.shuffle(players) # ensure random order, though set should already do that
+    if len(players) != num_players:
+        print("No duplicate player names")
+        exit(1)
         
-        
-        
+    get_player_info(players)
