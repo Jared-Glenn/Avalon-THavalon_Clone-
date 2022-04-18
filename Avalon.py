@@ -49,6 +49,12 @@ def get_role_information(my_player,players):
         'Colgrevance' : ['{} is {}.'.format(player.name, player.role) for player in players if player.team == 'Evil' and player != my_player],
     }.get(my_player.role,[])
 
+def get_rumors():
+    rumors = []
+    
+    if player_of_role.get('Merlin'):
+        rumors.append('Nimue') #Make dictionary? Use append?
+
 class Player():
     # Players have the following traits
     # name: the name of the player as fed into system arguments
