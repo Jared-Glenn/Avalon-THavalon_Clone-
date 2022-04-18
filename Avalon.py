@@ -49,11 +49,17 @@ def get_role_information(my_player,players):
         'Colgrevance' : ['{} is {}.'.format(player.name, player.role) for player in players if player.team == 'Evil' and player != my_player],
     }.get(my_player.role,[])
 
-def get_rumors():
-    rumors = []
+def get_rumors(players):
+    rumors = {}
     
     if player_of_role.get('Merlin'):
-        rumors.append('Nimue') #Make dictionary? Use append?
+        merlin_player = '{}'.format(player.name) for player in players if player.role == 'Merlin'
+        nonevil_list = []
+        for player in players:
+            if player.team != 'Evil':
+                nonevil_list.append(player.name)
+        random_nonevil = random.sample(nonevil_list,1)[0]
+        rumors['merlin_rumor'] = [merlin_player + ' knows something about {}'.format(player.name) for player in players if (player.team == 'Evil' and player.role != 'Mordred') or player.role == 'Lancelot' or player.name == random_nonevil]
 
 class Player():
     # Players have the following traits
