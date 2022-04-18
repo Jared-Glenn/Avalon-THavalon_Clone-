@@ -15,6 +15,7 @@ def get_role_description(role):
         'Arthur' : 'You know which Good roles are in the game, but not who has any given role.\nIf two missions have Failed, and less than two missions have Succeeded, you may declare as Arthur.\nAfter declaring, your vote on team proposals is counted twice, but you are unable to be on mission teams until the 5th mission.\nAfter declaring, you are immune to any effect that can forcibly change your vote.',
         'Titania' : 'You appear as Evil to all players with Evil roles (except Colgrevance).',
         'Nimue' : 'You know which Good and Evil roles are in the game, but not who has any given role.\nYou are a valid Assassination target.',
+        'Galahad' : 'After two quests have failed, you can declare as Galahad.\nAfter declaring, all other players must close their eyes and hold their fists in front of them.\nYou can name two Good roles (such as Merlin, Arthur, or Lancelot), one at a time.\nIf one of the players is that role, they must raise their thumb to indicate who they are.\nAfter this phase, play resumes normally.',
 
         'Mordred' : 'You are hidden from all Good roles that could reveal that information.\nLike other Evil characters, you know who else is Evil (except Colgrevance).',
         'Morgana' : 'You appear like Merlin to Percival.\nLike other Evil characters, you know who else is Evil (except Colgrevance).',
@@ -39,6 +40,7 @@ def get_role_information(my_player,players):
         'Arthur' : ['{}'.format(player.role) for player in players if player.team == 'Good' and player.role != 'Arthur'],
         'Titania' : [],
         'Nimue' : ['{}'.format(player.role) for player in players if player.role != 'Nimue'],
+        'Galahad' : [],
 
         'Mordred' : ['{} is Evil.'.format(player.name) for player in players if (player.team == 'Evil' and player != my_player and player.role != 'Colgrevance') or player.role == 'Titania'],
         'Morgana' : ['{} is Evil.'.format(player.name) for player in players if (player.team == 'Evil' and player != my_player and player.role != 'Colgrevance') or player.role == 'Titania'],
@@ -72,6 +74,9 @@ class Player():
     def add_info(self, info):
         self.info += info
 
+    def erase_info(self, info):
+        self.info = []
+
     def generate_info(self, players):
         pass
 
@@ -97,12 +102,12 @@ def get_player_info(player_names):
     num_good = num_players - num_evil
 
     # establish available roles
-    good_roles = ['Merlin', 'Percival', 'Tristan', 'Iseult', 'Lancelot']
+    good_roles = ['Merlin', 'Percival', 'Tristan', 'Iseult', 'Lancelot', 'Galahad']
     evil_roles = ['Mordred', 'Morgana', 'Maelagant']
 
     # additional roles for player-count
     # 5 only
-    if num_players > 6:
+    if num_players < 6:
         good_roles.append('Nimue')
 
     # 7 plus
@@ -141,7 +146,8 @@ def get_player_info(player_names):
         if random.choice([True, False]):
             # replacing the lone lover
              available_roles = set(good_roles)-set(good_roles_in_game)-set(['Tristan','Iseult'])
-             good_roles_in_game.append(random.sample(set(available_roles),1)[0])
+            # DecrecationWarning issue. Found solution at https://stackoverflow.com/questions/70426576/get-random-number-from-set-deprecation
+             good_roles_in_game.append(random.sample([available_roles],k=1)[0])
         else:
             # upgradng to pair of lovers
             rerolled = random.choice(good_roles_in_game)
