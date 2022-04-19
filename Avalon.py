@@ -16,6 +16,7 @@ def get_role_description(role):
         'Titania' : 'You appear as Evil to all players with Evil roles (except Colgrevance).',
         'Nimue' : 'You know which Good and Evil roles are in the game, but not who has any given role.\nYou are a valid Assassination target.',
         'Galahad' : 'After two quests have failed, you can declare as Galahad.\nAfter declaring, all other players must close their eyes and hold their fists in front of them.\nYou can name two Good roles (such as Merlin, Arthur, or Lancelot), one at a time.\nIf one of the players is that role, they must raise their thumb to indicate who they are.\nAfter this phase, play resumes normally.',
+        'Guinevere' : 'You know two \"rumors\" about other players, but nothing about their roles.\nThese rumors give you a glimpse at somebody else\'s character information, telling you who they know something about,\nbut not what roles they are.\nFor instance, you if you heard a rumor about Player A seeing Player B,\nit might mean Player A is Merlin seeing an Evil player, or it might mean they are both Evil and can see each other.',
 
         'Mordred' : 'You are hidden from all Good roles that could reveal that information.\nLike other Evil characters, you know who else is Evil (except Colgrevance).',
         'Morgana' : 'You appear like Merlin to Percival.\nLike other Evil characters, you know who else is Evil (except Colgrevance).',
@@ -41,6 +42,7 @@ def get_role_information(my_player,players):
         'Titania' : [],
         'Nimue' : ['{}'.format(player.role) for player in players if player.role != 'Nimue'],
         'Galahad' : [],
+        'Guinevere' : [get_rumors(my_player, players)],
 
         'Mordred' : ['{} is Evil.'.format(player.name) for player in players if (player.team == 'Evil' and player != my_player and player.role != 'Colgrevance') or player.role == 'Titania'],
         'Morgana' : ['{} is Evil.'.format(player.name) for player in players if (player.team == 'Evil' and player != my_player and player.role != 'Colgrevance') or player.role == 'Titania'],
@@ -48,6 +50,41 @@ def get_role_information(my_player,players):
         'Agravaine' : ['{} is Evil.'.format(player.name) for player in players if (player.team == 'Evil' and player != my_player and player.role != 'Colgrevance') or player.role == 'Titania'],
         'Colgrevance' : ['{} is {}.'.format(player.name, player.role) for player in players if player.team == 'Evil' and player != my_player],
     }.get(my_player.role,[])
+
+def get_rumors(my_player, players):
+    rumors = []
+
+    # Generate rumor about Merlin
+    merlin_player = None
+    is_Merlin = 0
+    for player in players:
+        if player.role == 'Merlin':
+            merlin_player = player.name
+            is_Merlin = 1
+    if is_Merlin == 1:
+        players_of_evil = []
+        for player in players:
+            if (player.team == 'Evil' and player.role != 'Mordred') or player.role == "Lancelot":
+                players_of_evil.append(player.name)
+        random_merlin_rumor = random.choice(players_of_evil)
+        merlin_rumor = '{} sees {}'.format(merlin_player, random_merlin_rumor)
+        rumors.append(merlin_rumor)
+    else:
+        rumors.append('No Merlin appears in this game.')
+
+    return random.choice(rumors)
+
+
+# Oberoning Merlin (save for later)
+#if player_of_role.get('Merlin'):
+#    merlin_player = '{}'.format(player.name) for player in players if player.role == 'Merlin'
+#    nonevil_list = []
+#    for player in players:
+#        if player.team != 'Evil' and player.role != "Lancelot" and player.role != "Merlin:
+#            nonevil_list.append(player.name)
+#    random_nonevil = random.sample(nonevil_list,1)[0]
+#    rumors['merlin_rumor'] = [merlin_player + ' sees {}'.format(player.name) for player in players if (player.team == 'Evil' and player.role != 'Mordred') or player.role == 'Lancelot' or player.name == random_nonevil]
+
 
 class Player():
     # Players have the following traits
@@ -102,7 +139,8 @@ def get_player_info(player_names):
     num_good = num_players - num_evil
 
     # establish available roles
-    good_roles = ['Merlin', 'Percival', 'Tristan', 'Iseult', 'Lancelot', 'Galahad']
+    good_roles = ['Merlin', 'Percival', 'Guinevere', 'Lancelot', 'Galahad']
+    #'Tristan', 'Iseult'
     evil_roles = ['Mordred', 'Morgana', 'Maelagant']
 
     # additional roles for player-count
