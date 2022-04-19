@@ -41,6 +41,7 @@ def get_role_information(my_player,players):
         'Titania' : [],
         'Nimue' : ['{}'.format(player.role) for player in players if player.role != 'Nimue'],
         'Galahad' : [],
+        'Guinevere' : [player.rumor]
 
         'Mordred' : ['{} is Evil.'.format(player.name) for player in players if (player.team == 'Evil' and player != my_player and player.role != 'Colgrevance') or player.role == 'Titania'],
         'Morgana' : ['{} is Evil.'.format(player.name) for player in players if (player.team == 'Evil' and player != my_player and player.role != 'Colgrevance') or player.role == 'Titania'],
@@ -49,17 +50,17 @@ def get_role_information(my_player,players):
         'Colgrevance' : ['{} is {}.'.format(player.name, player.role) for player in players if player.team == 'Evil' and player != my_player],
     }.get(my_player.role,[])
 
-def get_rumors(players):
-    rumors = {}
+def get_rumors(my_player, players):
+    rumors = {}.get(my_player.rumor, [])
     
     if player_of_role.get('Merlin'):
         merlin_player = '{}'.format(player.name) for player in players if player.role == 'Merlin'
         nonevil_list = []
         for player in players:
-            if player.team != 'Evil':
+            if player.team != 'Evil' and player.role != "Lancelot" and player.role != "Merlin:
                 nonevil_list.append(player.name)
         random_nonevil = random.sample(nonevil_list,1)[0]
-        rumors['merlin_rumor'] = [merlin_player + ' knows something about {}'.format(player.name) for player in players if (player.team == 'Evil' and player.role != 'Mordred') or player.role == 'Lancelot' or player.name == random_nonevil]
+        rumors['merlin_rumor'] = [merlin_player + ' sees {}'.format(player.name) for player in players if (player.team == 'Evil' and player.role != 'Mordred') or player.role == 'Lancelot' or player.name == random_nonevil]
 
 class Player():
     # Players have the following traits
