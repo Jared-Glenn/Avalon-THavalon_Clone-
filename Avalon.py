@@ -17,6 +17,7 @@ def get_role_description(role):
         'Nimue' : 'You know which Good and Evil roles are in the game, but not who has any given role.\nYou are a valid Assassination target.',
         'Galahad' : 'After two quests have failed, you can declare as Galahad.\nAfter declaring, all other players must close their eyes and hold their fists in front of them.\nYou can name two Good roles (such as Merlin, Arthur, or Lancelot), one at a time.\nIf one of the players is that role, they must raise their thumb to indicate who they are.\nAfter this phase, play resumes normally.',
         'Guinevere' : 'You know two \"rumors\" about other players, but (with the exception of Arthur) nothing about their roles.\n\nThese rumors give you a glimpse at somebody else\'s character information, telling you who they know something about, but not what roles they are.\n\nFor instance, you if you heard a rumor about Player A seeing Player B, it might mean Player A is Merlin seeing an Evil player, or it might mean they are both Evil and can see each other.',
+        'Gawain' : 'You can see two pairs of players.\nOne pair of players are against each other (Good and Evil or Pelinor and the Questing Beast), and the other pair are on the same side (Evil and Evil or Good and Good).',
 
         'Mordred' : 'You are hidden from all Good roles that could reveal that information.\nLike other Evil characters, you know who else is Evil (except Colgrevance).',
         'Morgana' : 'You appear like Merlin to Percival.\nLike other Evil characters, you know who else is Evil (except Colgrevance).',
@@ -43,6 +44,7 @@ def get_role_information(my_player,players):
         'Nimue' : ['{}'.format(player.role) for player in players if player.role != 'Nimue'],
         'Galahad' : [],
         'Guinevere' : [get_rumors(my_player, players)],
+        'Gawain' : [
 
         'Mordred' : ['{} is Evil.'.format(player.name) for player in players if (player.team == 'Evil' and player != my_player and player.role != 'Colgrevance') or player.role == 'Titania'],
         'Morgana' : ['{} is Evil.'.format(player.name) for player in players if (player.team == 'Evil' and player != my_player and player.role != 'Colgrevance') or player.role == 'Titania'],
@@ -112,8 +114,46 @@ def get_rumors(my_player, players):
             if player.team == 'Good' and player.role != 'Arthur' and player.role != 'Guinevere:
                 rumors.append('King Arthur sees {}'.format(player.role))
 
-    return random.choice(rumors)
+    rumor_one = random.choice(rumors)
+    rumor_two = random.choice(rumors)
+    while rumor_one == rumor_two:
+            rumor_two = random.choice(rumors)
+    return rumor_one + '\n' + rumor_two
 
+def get_relationships(my_player, players):
+    
+    # Assign teams
+    good_team = []
+    evil_team = []
+    neutral_team = []
+    for player in player:
+        if player.team == 'Good' and player.role != 'Gawain':
+            good_team.append(player)
+        if player.team == 'Evil' and player.role != 'Mordred:
+            evil_team.append(player)
+        if player.team == 'Neutral':
+            neutral_team.append(player)
+    valid_players = good_team + evil_team + neutral_team
+            
+    # Choose random Opposing Team players
+    opposition = None
+    opposing_player = random.choice(valid_players)
+    if opposing_player.team == 'Good':
+            opposition = opposing_player.name + ' opposes ' + (random.choice(evil_team)).name
+    elif opposing_player.team == 'Evil':
+            opposition = opposing_player.name + ' opposes ' + (random.choice(good_team)).name
+    elif opposing_player.role == 'Pelinor':
+            for player in players:
+                if player.role == 'Questing Beast':
+                    opposition = opposing_player.name + ' opposes ' + player.name
+    elif opposing_player.role == 'Questing Beast':
+            for player in players:
+                if player.role == 'Pelinor':
+                    opposition = opposing_player.name + ' opposes ' + player.name
+
+    #Choose random Collaborator players
+    collaboration = None
+    
 
 # Oberoning Merlin (save for later)
 #if player_of_role.get('Merlin'):
