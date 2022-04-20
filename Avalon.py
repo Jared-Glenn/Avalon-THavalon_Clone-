@@ -54,7 +54,7 @@ def get_role_information(my_player,players):
 def get_rumors(my_player, players):
     rumors = []
 
-    # Generate rumor about Merlin
+    # Generate rumors about Merlin
     merlin_player = None
     is_Merlin = 0
     for player in players:
@@ -62,16 +62,47 @@ def get_rumors(my_player, players):
             merlin_player = player.name
             is_Merlin = 1
     if is_Merlin == 1:
-        players_of_evil = []
         for player in players:
             if (player.team == 'Evil' and player.role != 'Mordred') or player.role == "Lancelot":
-                players_of_evil.append(player.name)
-        random_merlin_rumor = random.choice(players_of_evil)
-        merlin_rumor = '{} sees {}'.format(merlin_player, random_merlin_rumor)
-        rumors.append(merlin_rumor)
-    else:
-        rumors.append('No Merlin appears in this game.')
+                player_of_evil = player.name
+                rumors.append('{} sees {}'.format(merlin_player, player_of_evil))
 
+    # Generate rumors about Percival
+    percival_player = None
+    is_Percival = 0
+    for player in players:
+        if player.role == 'Percival':
+            percival_player = player.name
+            is_Percival = 1
+    if is_Percival == 1:
+        for player in players:
+            if player.role == 'Merlin' or player.role == 'Morgana':
+                seer = player.name
+                rumors.append('{} sees {}'.format(percival_player, seer))
+
+    # Generate rumor about the Lovers
+    tristan_player = None
+    iseult_player = None
+    is_Lovers = 0
+    for player in players:
+        if player.role == 'Tristan':
+            tristan_player = player.name
+            is_Lovers += 1
+        elif player.role == 'Iseult':
+            iseult_player = player.name
+            is_Lovers += 1
+    if is_Lovers == 2:
+        rumors.append('{} sees {}'.format(tristan_player, iseult_player))
+        rumors.append('{} sees {}'.format(iseult_player, tristan_player))
+
+    # Generate rumor about Evil players
+    for player in players:
+        if player.team == 'Evil' and player.role != 'Mordred':
+            for player_two in players:
+                if (player_two.team == 'Evil' and player_two.role != 'Mordred' and player_two.role != 'Colgrevance' and player_two != player) or (player_two.role == 'Titania' and player_two != player):
+                    rumors.append('{} sees {}'.format(player.name, player_two.name))
+
+    print(rumors)
     return random.choice(rumors)
 
 
@@ -139,7 +170,7 @@ def get_player_info(player_names):
     num_good = num_players - num_evil
 
     # establish available roles
-    good_roles = ['Merlin', 'Percival', 'Guinevere', 'Lancelot', 'Galahad']
+    good_roles = ['Merlin', 'Percival', 'Guinevere', 'Tristan', 'Iseult', 'Lancelot', 'Galahad']
     #'Tristan', 'Iseult'
     evil_roles = ['Mordred', 'Morgana', 'Maelagant']
 
