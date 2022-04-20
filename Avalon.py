@@ -16,7 +16,7 @@ def get_role_description(role):
         'Titania' : 'You appear as Evil to all players with Evil roles (except Colgrevance).',
         'Nimue' : 'You know which Good and Evil roles are in the game, but not who has any given role.\nYou are a valid Assassination target.',
         'Galahad' : 'After two quests have failed, you can declare as Galahad.\nAfter declaring, all other players must close their eyes and hold their fists in front of them.\nYou can name two Good roles (such as Merlin, Arthur, or Lancelot), one at a time.\nIf one of the players is that role, they must raise their thumb to indicate who they are.\nAfter this phase, play resumes normally.',
-        'Guinevere' : 'You know two \"rumors\" about other players, but nothing about their roles.\nThese rumors give you a glimpse at somebody else\'s character information, telling you who they know something about,\nbut not what roles they are.\nFor instance, you if you heard a rumor about Player A seeing Player B,\nit might mean Player A is Merlin seeing an Evil player, or it might mean they are both Evil and can see each other.',
+        'Guinevere' : 'You know two \"rumors\" about other players, but (with the exception of Arthur) nothing about their roles.\n\nThese rumors give you a glimpse at somebody else\'s character information, telling you who they know something about, but not what roles they are.\n\nFor instance, you if you heard a rumor about Player A seeing Player B, it might mean Player A is Merlin seeing an Evil player, or it might mean they are both Evil and can see each other.',
 
         'Mordred' : 'You are hidden from all Good roles that could reveal that information.\nLike other Evil characters, you know who else is Evil (except Colgrevance).',
         'Morgana' : 'You appear like Merlin to Percival.\nLike other Evil characters, you know who else is Evil (except Colgrevance).',
@@ -102,7 +102,16 @@ def get_rumors(my_player, players):
                 if (player_two.team == 'Evil' and player_two.role != 'Mordred' and player_two.role != 'Colgrevance' and player_two != player) or (player_two.role == 'Titania' and player_two != player):
                     rumors.append('{} sees {}'.format(player.name, player_two.name))
 
-    print(rumors)
+    # Generate rumor about Arthur
+    is_Arthur = 0
+    for player in players:
+        if player.role == 'Arthur':
+            is_Arthur = 1
+    if is_Arthur == 1:
+        for player in players:
+            if player.team == 'Good' and player.role != 'Arthur' and player.role != 'Guinevere:
+                rumors.append('King Arthur sees {}'.format(player.role))
+
     return random.choice(rumors)
 
 
