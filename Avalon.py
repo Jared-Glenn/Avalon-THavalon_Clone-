@@ -44,7 +44,7 @@ def get_role_information(my_player,players):
         'Nimue' : ['{}'.format(player.role) for player in players if player.role != 'Nimue'],
         'Galahad' : [],
         'Guinevere' : [get_rumors(my_player, players)],
-        'Gawain' : [
+        'Gawain' : [get_relationships(my_player, players)],
 
         'Mordred' : ['{} is Evil.'.format(player.name) for player in players if (player.team == 'Evil' and player != my_player and player.role != 'Colgrevance') or player.role == 'Titania'],
         'Morgana' : ['{} is Evil.'.format(player.name) for player in players if (player.team == 'Evil' and player != my_player and player.role != 'Colgrevance') or player.role == 'Titania'],
@@ -134,6 +134,7 @@ def get_relationships(my_player, players):
         if player.team == 'Neutral':
             neutral_team.append(player)
     valid_players = good_team + evil_team + neutral_team
+    valid_collaborators = good_team + evil_team
             
     # Choose random Opposing Team players
     opposition = None
@@ -150,10 +151,20 @@ def get_relationships(my_player, players):
             for player in players:
                 if player.role == 'Pelinor':
                     opposition = opposing_player.name + ' opposes ' + player.name
-
+    else:
+            opposition = 'OPPOSITION ERROR'
+            
     #Choose random Collaborator players
     collaboration = None
-    
+    collaborating_player = random.choice(valid_collaborators)
+    if collaborating_player.team == 'Good':
+            collaboration = collaborating_player.name + ' is collaborating with ' + (random.choice(good_team)).name
+    elif collaborating_player.team == 'Evil':
+            collaboration = collaborating_player.name + ' is collaborating with ' + (random.choice(evil_team)).name
+    else:
+            collaboration = 'COLLABORATION ERROR'
+            
+    return opposition + '\n' + collaboration
 
 # Oberoning Merlin (save for later)
 #if player_of_role.get('Merlin'):
