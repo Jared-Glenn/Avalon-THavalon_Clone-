@@ -221,18 +221,25 @@ def get_player_info(player_names):
         players.append(player)
 
     # number of good and evil roles
+    num_neutral = 0
     if num_players < 7:
         num_evil = 2
     elif num_players < 9:
         num_evil = 3
-    else:
+    elif num_players == 9:
         num_evil = 4
-    num_good = num_players - num_evil
+    else:
+        if random.choice([True, False, False]):
+            num_evil = 3
+            num_neutral = 2
+        else:
+            num_evil = 4
+    num_good = num_players - num_evil - num_neutral
 
     # establish available roles
     good_roles = ['Merlin', 'Percival', 'Guinevere', 'Tristan', 'Iseult', 'Lancelot', 'Galahad']
-    #'Tristan', 'Iseult'
     evil_roles = ['Mordred', 'Morgana', 'Maelagant']
+    neutral_roles = []
 
     # additional roles for player-count
     # 5 only
@@ -251,6 +258,7 @@ def get_player_info(player_names):
     # 10 only
     if num_players == 10:
         evil_roles.append('Colgrevance')
+        neutral_roles.append('Pelinor', 'The Questing Beast')
 
     '''
     cide for testing role interaction
@@ -262,6 +270,7 @@ def get_player_info(player_names):
     '''
     good_roles_in_game = random.sample(good_roles, num_good)
     evil_roles_in_game = random.sample(evil_roles, num_evil)
+    neutral_roles_in_game = random.sample(neutral_roles, num_neutral)
 
     # lone lovers are rerolled
     # 50% chance to reroll one lone lover
@@ -290,9 +299,10 @@ def get_player_info(player_names):
 
     # role assignment
     random.shuffle(players)
-
+5-3-2
     good_players = players[:num_good]
-    evil_players = players[num_good:]
+    evil_players = players[num_good:num_good+num_evil]
+    neutral_players = players[num_good+num_evil:]
 
     player_of_role = dict()
 
@@ -311,6 +321,12 @@ def get_player_info(player_names):
         ep.set_role(new_role)
         ep.set_team('Evil')
         player_of_role[new_role] = ep
+        
+    for np in neutral_players:
+        new_role = neutral_roles_in_game.pop()
+        np.set_role(new_role)
+        np.set_team('Neutral')
+        player_of_role[new_role] = np
 
     for p in players:
         p.add_info(get_role_information(p,players))
