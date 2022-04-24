@@ -25,8 +25,8 @@ def get_role_description(role):
         'Agravaine' : 'You must play Fail cards while on missions.\nIf you are on a mission that Succeeds, you may declare as Agravaine to cause it to Fail instead.\nLike other Evil characters, you know who else is Evil (except Colgrevance).',
         'Colgrevance' : 'You know not only who else is Evil, but what role each other Evil player possesses.\nEvil players know that there is a Colgrevance, but do not know that it is you or even that you are Evil.',
 
-        'Pelinor' : 'You are Neutral in this battle and have no allies in this game. Your nemesis is The Questing Beast, who lurks outside your sight. And take care, because The Questing Beast knows who you are.\nYou can only win by going on the Fifth and final quest without The Questing Beast, so you must first ensure that the Fifth Quest happens. You can play either \"Success\" or \"Reversal\" cards on missions to ensure you can get to the Fifth Quest.\nThe Questing Beast must play a \"The Questing Beast Was Here\" card at least once to win, but may choose to also play a \"Reversal\" card once per game, so beware its tricks. If you go on the Fifth Quest and suspect that The Questing Beast is there as well, you may choose to declare as Pelinor before the cards are read to defeat The Questing Beast and win, if it is present.\nBeware, though! If The Questing Beast is not on the Fifth Quest when you declare as Pelinor, you lose and The Questing Beast wins instead.',
-        'The Questing Beast' : 'You are Neutral in this battle and have no allies in this game. Your nemesis is Pelinor, and though you can see him, he does not know who you are.\nYou have a few options for victory, but can only win if the Fifth and final quest occurs. To that end, you can play a single \"Reversal\" card once per game. On all other quests, you MUST play a \"The Questing Beast Was Here\" card, and must do so at least once this game to win. If you go on the Fifth Quest and suspect that The Questing Beast is there as well, you may choose to declare as Pelinor before the cards are read to defeat The Questing Beast and win, if it is present.\nBeware, though! If The Questing Beast is not on the Fifth Quest when you declare as Pelinor, you lose and The Questing Beast wins, instead.'
+        'Pelinor' : 'You are Neutral in this battle and have no allies in this game.\n\nYour nemesis is The Questing Beast, who is also Neutral.\n\nCARDS YOU CAN PLAY:\n> \"Success\"\n> \"Reversal\"\n\nTO WIN:\n> The Fifth Quest must occur and you must be on it.\n> Do one of the following:\n>>> Go on the Fifth Quest if The Questing Beast is NOT present.\n>>> Defeat The Questing Beast by declaring as Pelinor on the Fifth Quest while the Questing Beast IS present.\n>>> You MUST declare BEFORE the cards are read.\n>>> Beware, though! If The Questing Beast is not on the Fifth Quest when you declare as Pelinor, you lose and The Questing Beast wins instead.\n\nABOUT THE QUESTING BEAST:\n> The Questing Beast can see who you are.\n> The Questing Beast must play a \"The Questing Beast Was Here\" card at least once to win, but may play a \"Reversal\" card once per game.\n> If The Questing Beast does not play a \"The Questing Beast Was Here\" card at least once before the Fifth Quest, you automatically win by attending the Fifth Quest, even if The Questing Beast is present.',
+        'The Questing Beast' : 'You are Neutral in this battle and have no allies in this game.\n\nYour nemesis is Pelinor, who is also Neutral.\n\nCARDS YOU CAN PLAY:\n> \"The Questing Beast Was Here.\"\n> \"Reversal\" (Only Once Per Game)\n\n\nTO WIN:\n> The Fifth Quest Must Occur.\n> You must play at least one \"The Questing Beast Was Here\" card.\n> Complete one of the following two options:\n>>> Go on the Fifth Quest undetected.\n>>> Trick Pelinor into declaring while you are NOT on the Fifth Quest.\n\nABOUT PELINOR:\n> Pelinor cannot see you, though you can see him.\n>Pelinor also wants to reach the Fifth Quest and must go on it to win.\n> Beware! If Pelinor suspects you are on the Fifth Quest, he may declare as Pelinor, causing you to lose. (If Pelinor declares incorrectly, you automatically win and Pelinor loses.)\n> If niether you nor Pelinor are on the Fifth Quest, you both lose.',
 }.get(role,'ERROR: No description available.')
 
 # get_role_information: this is called to populate information files
@@ -56,7 +56,7 @@ def get_role_information(my_player,players):
         'Colgrevance' : ['{} is {}.'.format(player.name, player.role) for player in players if player.team == 'Evil' and player != my_player],
 
         'Pelinor' : [],
-        'The Questing Beast' : ['{} is Pelinor.'.format(player.name), for player in players if player.role == 'Pelinor'],
+        'The Questing Beast' : ['{} is Pelinor.'.format(player.name) for player in players if player.role == 'Pelinor'],
     }.get(my_player.role,[])
 
 def get_rumors(my_player, players):
@@ -117,7 +117,7 @@ def get_rumors(my_player, players):
             is_Arthur = 1
     if is_Arthur == 1:
         for player in players:
-            if player.team == 'Good' and player.role != 'Arthur' and player.role != 'Guinevere:
+            if player.team == 'Good' and player.role != 'Arthur' and player.role != 'Guinevere':
                 rumors.append('King Arthur sees {}'.format(player.role))
 
     rumor_one = random.choice(rumors)
@@ -132,10 +132,10 @@ def get_relationships(my_player, players):
     good_team = []
     evil_team = []
     neutral_team = []
-    for player in player:
+    for player in players:
         if player.team == 'Good' and player.role != 'Gawain':
             good_team.append(player)
-        if player.team == 'Evil' and player.role != 'Mordred:
+        if player.team == 'Evil' and player.role != 'Mordred':
             evil_team.append(player)
         if player.team == 'Neutral':
             neutral_team.append(player)
@@ -160,15 +160,23 @@ def get_relationships(my_player, players):
     else:
             opposition = 'OPPOSITION ERROR'
 
-    #Choose random Collaborator players
+    # Choose random Collaborator players
+    # Random choice of good or evil team (else good would be much more likely)
+    # while loop to prevent collaborators from being the same player
     collaboration = None
-    collaborating_player = random.choice(valid_collaborators)
-    if collaborating_player.team == 'Good':
-            collaboration = collaborating_player.name + ' is collaborating with ' + (random.choice(good_team)).name
-    elif collaborating_player.team == 'Evil':
-            collaboration = collaborating_player.name + ' is collaborating with ' + (random.choice(evil_team)).name
-    else:
-            collaboration = 'COLLABORATION ERROR'
+    player_one = "1"
+    player_two = "1"
+    random_team = random.choice(['Good','Evil'])
+    while player_one == player_two:
+        if random_team == 'Good':
+            player_one = (random.choice(good_team)).name
+            player_two = (random.choice(good_team)).name
+        elif random_team == 'Evil':
+            player_one = (random.choice(evil_team)).name
+            player_two = (random.choice(evil_team)).name
+        else:
+            random_collaborator = 'COLLABORATION ERROR'
+    collaboration = player_one + ' is collaborating with ' + player_two
 
     return opposition + '\n' + collaboration
 
@@ -243,7 +251,7 @@ def get_player_info(player_names):
     num_good = num_players - num_evil - num_neutral
 
     # establish available roles
-    good_roles = ['Merlin', 'Percival', 'Guinevere', 'Tristan', 'Iseult', 'Lancelot', 'Galahad']
+    good_roles = ['Merlin', 'Percival', 'Guinevere', 'Tristan', 'Iseult', 'Lancelot', 'Galahad',]
     evil_roles = ['Mordred', 'Morgana', 'Maelagant']
     neutral_roles = []
 
@@ -255,6 +263,7 @@ def get_player_info(player_names):
     # 7 plus
     if num_players > 6:
         good_roles.append('Arthur')
+        good_roles.append('Gawain')
         good_roles.append('Titania')
 
     # 8 plus
@@ -264,7 +273,8 @@ def get_player_info(player_names):
     # 10 only
     if num_players == 10:
         evil_roles.append('Colgrevance')
-        neutral_roles.append('Pelinor', 'The Questing Beast')
+        neutral_roles.append('Pelinor')
+        neutral_roles.append('The Questing Beast')
 
     '''
     cide for testing role interaction
@@ -306,8 +316,11 @@ def get_player_info(player_names):
     # role assignment
     random.shuffle(players)
     good_players = players[:num_good]
-    evil_players = players[num_good:num_good+num_evil]
-    neutral_players = players[num_good+num_evil:]
+    evil_players = players[num_good:-2]
+    neutral_players = []
+    if num_neutral == 2:
+        neutral_players.append(players[-1])
+        neutral_players.append(players[-2])
 
     player_of_role = dict()
 
@@ -371,6 +384,10 @@ def get_player_info(player_names):
         file.write("\nEVIL TEAM:\n")
         for ep in evil_players:
             file.write("{} -> {}\n".format(ep.name,ep.role))
+        if len(neutral_players) > 0:
+            file.write("\nNEUTRAL TEAM:\n")
+            for np in neutral_players:
+                file.write("{} -> {}\n".format(np.name,np.role))
 
 if __name__ == "__main__":
     if not (6 <= len(sys.argv) <= 11):
