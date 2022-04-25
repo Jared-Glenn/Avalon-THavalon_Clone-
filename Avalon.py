@@ -187,7 +187,7 @@ def get_relationships(my_player, players):
             player_one = (random.choice(evil_team)).name
             player_two = (random.choice(evil_team)).name
         else:
-            random_collaborator = 'COLLABORATION ERROR'
+            player_two = 'COLLABORATION ERROR'
     collaboration = player_one + ' is collaborating with ' + player_two
 
     return opposition + '\n' + collaboration
