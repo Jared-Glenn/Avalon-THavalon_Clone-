@@ -126,6 +126,18 @@ def get_rumors(my_player, players):
             rumor_two = random.choice(rumors)
     return rumor_one + '\n' + rumor_two
 
+    # Generate rumor about The Questing Beast
+    questing_player = None
+    is_Questing = 0
+    for player in players:
+        if player.role == 'The Questing Beast':
+            questing_player = player
+            is_Questing = 1
+    if is_Questing == 1:
+        for player in players:
+            if player.role == 'Pelinor':
+                rumors.append(f'{questing_player} sees {player}.')
+
 def get_relationships(my_player, players):
 
     # Assign teams
@@ -175,7 +187,7 @@ def get_relationships(my_player, players):
             player_one = (random.choice(evil_team)).name
             player_two = (random.choice(evil_team)).name
         else:
-            random_collaborator = 'COLLABORATION ERROR'
+            player_two = 'COLLABORATION ERROR'
     collaboration = player_one + ' is collaborating with ' + player_two
 
     return opposition + '\n' + collaboration
