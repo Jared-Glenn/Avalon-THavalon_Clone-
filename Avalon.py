@@ -1,3 +1,4 @@
+import pdb
 import copy
 import os
 import random
@@ -46,8 +47,8 @@ def get_role_information(my_player,players):
         'Titania' : [],
         'Nimue' : ['{}'.format(player.role) for player in players if player.role != 'Nimue'],
         'Galahad' : [],
-        'Guinevere' : [get_rumors(my_player, players)],
-        'Gawain' : [get_relationships(my_player, players)],
+        'Guinevere' : [str(get_rumors(my_player, players))],
+        'Gawain' : [str(get_relationships(my_player, players))],
 
         'Mordred' : ['{} is Evil.'.format(player.name) for player in players if (player.team == 'Evil' and player != my_player and player.role != 'Colgrevance') or player.role == 'Titania'],
         'Morgana' : ['{} is Evil.'.format(player.name) for player in players if (player.team == 'Evil' and player != my_player and player.role != 'Colgrevance') or player.role == 'Titania'],
@@ -120,12 +121,6 @@ def get_rumors(my_player, players):
             if player.team == 'Good' and player.role != 'Arthur' and player.role != 'Guinevere':
                 rumors.append('King Arthur sees {}'.format(player.role))
 
-    rumor_one = random.choice(rumors)
-    rumor_two = random.choice(rumors)
-    while rumor_one == rumor_two:
-            rumor_two = random.choice(rumors)
-    return rumor_one + '\n' + rumor_two
-
     # Generate rumor about The Questing Beast
     questing_player = None
     is_Questing = 0
@@ -137,6 +132,12 @@ def get_rumors(my_player, players):
         for player in players:
             if player.role == 'Pelinor':
                 rumors.append(f'{questing_player} sees {player}.')
+
+    rumor_one = random.choice(rumors)
+    rumor_two = random.choice(rumors)
+    while rumor_one == rumor_two:
+            rumor_two = random.choice(rumors)
+    return rumor_one + '\n' + rumor_two
 
 def get_relationships(my_player, players):
 
@@ -152,7 +153,6 @@ def get_relationships(my_player, players):
         if player.team == 'Neutral':
             neutral_team.append(player)
     valid_players = good_team + evil_team + neutral_team
-    valid_collaborators = good_team + evil_team
 
     # Choose random Opposing Team players
     opposition = None
@@ -169,8 +169,6 @@ def get_relationships(my_player, players):
             for player in players:
                 if player.role == 'Pelinor':
                     opposition = opposing_player.name + ' opposes ' + player.name
-    else:
-            opposition = 'OPPOSITION ERROR'
 
     # Choose random Collaborator players
     # Random choice of good or evil team (else good would be much more likely)
@@ -186,8 +184,7 @@ def get_relationships(my_player, players):
         elif random_team == 'Evil':
             player_one = (random.choice(evil_team)).name
             player_two = (random.choice(evil_team)).name
-        else:
-            player_two = 'COLLABORATION ERROR'
+
     collaboration = player_one + ' is collaborating with ' + player_two
 
     return opposition + '\n' + collaboration
@@ -288,17 +285,12 @@ def get_player_info(player_names):
         neutral_roles.append('Pelinor')
         neutral_roles.append('The Questing Beast')
 
-    '''
-    cide for testing role interaction
-    if num players == 2:
-        good_roles = ['Merlin']
-        evil_roles = ['Maeve']
-        num_good = 1
-        num_evil = 1
-    '''
     good_roles_in_game = random.sample(good_roles, num_good)
     evil_roles_in_game = random.sample(evil_roles, num_evil)
-    neutral_roles_in_game = random.sample(neutral_roles, num_neutral)
+    neutral_roles_in_game = []
+    if num_neutral > 0:
+        neutral_roles_in_game.append('Pelinor')
+        neutral_roles_in_game.append('The Questing Beast')
 
     # lone lovers are rerolled
     # 50% chance to reroll one lone lover
@@ -311,9 +303,13 @@ def get_player_info(player_names):
 
         if random.choice([True, False]):
             # replacing the lone lover
-             available_roles = set(good_roles)-set(good_roles_in_game)-set(['Tristan','Iseult'])
+            ##### ISSUE FOUND!!!! ############### Problem occurs when Lover is removed and replaced!
+            available_roles = good_roles
+            not_available = good_roles_in_game + ['Tristan'] + ['Iseult']
+            for role in not_available:
+                available_roles.remove(role)
             # DecrecationWarning issue. Found solution at https://stackoverflow.com/questions/70426576/get-random-number-from-set-deprecation
-             good_roles_in_game.append(random.sample([available_roles],k=1)[0])
+            good_roles_in_game.append(random.choice(available_roles))
         else:
             # upgradng to pair of lovers
             rerolled = random.choice(good_roles_in_game)
@@ -327,10 +323,12 @@ def get_player_info(player_names):
 
     # role assignment
     random.shuffle(players)
-    good_players = players[:num_good]
-    evil_players = players[num_good:-2]
     neutral_players = []
-    if num_neutral == 2:
+    good_players = players[:num_good]
+    if num_neutral == 0:
+        evil_players = players[num_good:]
+    else:
+        evil_players = players[num_good:-2]
         neutral_players.append(players[-1])
         neutral_players.append(players[-2])
 
